@@ -61,6 +61,7 @@ task api(type: Javadoc) {
 /**
  * Produce KDoc for all Spring Framework modules in "build/docs/kdoc"
  */
+/*
 dokka {
 	dependsOn {
 		tasks.getByName("api")
@@ -108,6 +109,7 @@ dokka {
 		}
 	}
 }
+*/
 
 task downloadResources(type: Download) {
 	def version = "0.2.1.RELEASE"
@@ -152,7 +154,7 @@ asciidoctorj {
  * Generate the Spring Framework Reference documentation from "src/docs/asciidoc"
  * in "build/docs/ref-docs/html5".
  */
-asciidoctor {
+/*asciidoctor {
 	baseDirFollowsSourceDir()
 	configurations 'asciidoctorExt'
 	sources {
@@ -166,7 +168,7 @@ asciidoctor {
 		}
 		from extractDocResources
 	}
-}
+}*/
 
 /**
  * Generate the Spring Framework Reference documentation from "src/docs/asciidoc"
@@ -212,6 +214,33 @@ task docsZip(type: Zip, dependsOn: ['api', 'asciidoctor', 'asciidoctorPdf', 'dok
 /**
  * Zip all Spring Framework schemas into a single archive
  */
+//task schemaZip(type: Zip) {
+//	group = "Distribution"
+//	archiveBaseName.set("spring-framework")
+//	archiveClassifier.set("schema")
+//	description = "Builds -${archiveClassifier} archive containing all " +
+//			"XSDs for deployment at https://springframework.org/schema."
+//	duplicatesStrategy DuplicatesStrategy.EXCLUDE
+//	moduleProjects.each { module ->
+//		def Properties schemas = new Properties();
+//
+//		module.sourceSets.main.resources.find {
+//			(it.path.endsWith("META-INF/spring.schemas") || it.path.endsWith("META-INF\\spring.schemas"))
+//		}?.withInputStream { schemas.load(it) }
+//
+//		for (def key : schemas.keySet()) {
+//			def shortName = key.replaceAll(/http.*schema.(.*).spring-.*/, '$1')
+//			assert shortName != key
+//			File xsdFile = module.sourceSets.main.resources.find {
+//				(it.path.endsWith(schemas.get(key)) || it.path.endsWith(schemas.get(key).replaceAll('\\/','\\\\')))
+//			}
+//			assert xsdFile != null
+//			into (shortName) {
+//				from xsdFile.path
+//			}
+//		}
+//	}
+//}
 task schemaZip(type: Zip) {
 	group = "Distribution"
 	archiveBaseName.set("spring-framework")
@@ -223,7 +252,7 @@ task schemaZip(type: Zip) {
 		def Properties schemas = new Properties();
 
 		module.sourceSets.main.resources.find {
-			(it.path.endsWith("META-INF/spring.schemas") || it.path.endsWith("META-INF\\spring.schemas"))
+			(it.path.endsWith("META-INF\\spring.schemas") || it.path.endsWith("META-INF\\spring.schemas"))
 		}?.withInputStream { schemas.load(it) }
 
 		for (def key : schemas.keySet()) {
