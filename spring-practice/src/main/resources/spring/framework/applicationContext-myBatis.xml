@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+		
+    <bean id="dataSource" class="com.baosight.xinsight.datasource.XinsightDataSource" init-method="init" destroy-method="close">
+        <property name="name" value="datasource"/>
+        <property name="driverClassName" value="org.postgresql.Driver"/>
+        <property name="url" value="jdbc:postgresql://${postgres.host}/${etl.database.instance}"/>
+        <property name="username" value="${postgres.user}"/>
+        <property name="password" value="${postgres.password}"/>
+
+        <property name="initialSize" value="${etl.jdbc.initialSize}" />
+        <property name="minIdle" value="${etl.jdbc.minIdle}" />
+        <property name="maxActive" value="${etl.jdbc.maxActive}" />
+        <property name="keepAlive" value="${etl.jdbc.keepAlive}" />
+        <property name="testOnBorrow" value="${etl.jdbc.testOnBorrow}" />
+        <property name="testOnReturn" value="${etl.jdbc.testOnReturn}" />
+        <property name="testWhileIdle" value="${etl.jdbc.testWhileIdle}" />
+        <property name="validationQuery" value="${etl.jdbc.validationQuery}" />
+        <property name="maxWait" value="${etl.jdbc.maxWait}" />
+
+        <property name="failFast" value="${etl.jdbc.failFast}" />
+        <property name="killWhenSocketReadTimeout" value="${etl.jdbc.killWhenSocketReadTimeout}" />
+        <property name="connectionErrorRetryAttempts" value="${etl.jdbc.connectionErrorRetryAttempts}" />
+        <property name="timeBetweenConnectErrorMillis" value="${etl.jdbc.timeBetweenConnectErrorMillis}" />
+
+    </bean>
+
+    <!-- MyBatis配置 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->
+        <property name="typeAliasesPackage" value="classpath:com/baosight/**/entity"/>
+        <!-- 显式指定Mapper文件位置 -->
+        <property name="mapperLocations" value="classpath:sql/*.xml"/>
+    </bean>
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+    </bean>
+
+    <!-- 扫描basePackage下所有以@MyBatisRepository标识的 接口 -->
+    <!-- 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+            <property name="basePackage" value="classpath:com/baosight/**/dao" />
+            <property name="annotationClass"
+                value="classpath:com/baosight/**/dao/MyBatisRepository" />
+        </bean> -->
+
+
+    <!-- 使用annotation定义事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager"
+                          proxy-target-class="true"/>
+
+    <!-- 事务管理器, Jdbc单数据源事务 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+</beans>
